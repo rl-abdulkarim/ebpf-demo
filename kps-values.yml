@@ -1,0 +1,8 @@
+grafana:
+  plugins:
+    - isovalent-hubble-datasource
+    - https://grafana.com/api/plugins/parseable-parseable-datasource/versions/1.0.2/download;parseable-parseable-datasource
+prometheus:
+  prometheusSpec:
+    enableFeatures:
+      - exemplar-storage

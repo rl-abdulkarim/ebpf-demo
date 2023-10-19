@@ -1,0 +1,65 @@
+name: Documentation Updates
+
+# Any change in triggers needs to be reflected in the concurrency group.
+on:
+  pull_request: {}
+  push:
+    branches:
+      - main
+      - ft/main/**
+
+permissions: read-all
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.after }}
+  cancel-in-progress: true
+
+jobs:
+  check_changes:
+    name: Deduce required tests from code changes
+    runs-on: ubuntu-22.04
+    outputs:
+      docs-tree: ${{ steps.docs-tree.outputs.src }}
+    steps:
+      - name: Checkout code
+        if: ${{ !github.event.pull_request }}
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
+        with:
+          persist-credentials: false
+      - name: Check code changes
+        uses: dorny/paths-filter@4512585405083f25c027a35db413c2b3b9006d50 # v2.11.1
+        id: docs-tree
+        with:
+          # For `push` events, compare against the `ref` base branch
+          # For `pull_request` events, this is ignored and will compare against the pull request base branch
+          base: ${{ github.ref }}
+          filters: |
+            src:
+              - .github/workflows/documentation.yaml
+              - 'Documentation/**'
+              - 'bugtool/cmd/**'
+              - 'cilium/cmd/**'
+              - 'cilium-health/cmd/**'
+              - 'daemon/cmd/**'
+              - 'hubble-relay/cmd/**'
+              - 'install/kubernetes/**'
+              - 'operator/cmd/**'
+              - README.rst
+
+  # Runs only if code under Documentation or */cmd/ is changed as the docs
+  # should be unaffected otherwise.
+  build-html:
+    needs: check_changes
+    if: ${{ needs.check_changes.outputs.docs-tree == 'true' }}
+    name: Validate & Build HTML
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
+        with:
+          persist-credentials: false
+      - name: Build HTML
+        uses: docker://quay.io/cilium/docs-builder:b4742c730ff6b05c0b6b3e3383a264bf706aef5e@sha256:28e22c2f0c747216a5216304855be244f44d8d2752c6f810d0da1918712c5f61
+        with:
+          entrypoint: ./Documentation/check-build.sh
+          args: html

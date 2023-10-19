@@ -1,0 +1,10 @@
+{
+  "name": "Cilium",
+  "image": "quay.io/cilium/cilium-builder:3f94a291166286657c38a108d6eb092c5a603ab7@sha256:af052fdec4787a587aedbd79086952925e00ceff47dc6d25d62da09b6aacdbb9",
+  "workspaceFolder": "/go/src/github.com/cilium/cilium",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/go/src/github.com/cilium/cilium,type=bind",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker": {}
+  },
+  "postCreateCommand": "git config --global --add safe.directory /go/src/github.com/cilium/cilium"
+}
