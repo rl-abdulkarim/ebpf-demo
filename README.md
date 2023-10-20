@@ -28,8 +28,8 @@ cilium install --chart-directory ./cilium/install/kubernetes/cilium \
   --set hubble.metrics.enabled="{dns,drop,tcp,flow:labelsContext=source_ip\,source_namespace\,source_workload\,destination_ip\,destination_namespace\,destination_workload\,traffic_direction,flows-to-world,port-distribution,icmp,httpV2:exemplars=true;labelsContext=source_ip\,source_namespace\,source_workload\,destination_ip\,destination_namespace\,destination_workload\,traffic_direction}" \
   --set hubble.metrics.serviceMonitor.enabled=true \
   --set hubble.ui.enabled=true \
-  --set hubble.relay.enabled=true \
-  --set gke.enabled=true --dry-run-helm-values
+  --set hubble.relay.enabled=true 
+  #--set gke.enabled=true --dry-run-helm-values
 
 # Sample application and policy
 ```
@@ -164,6 +164,7 @@ wget https://hey-release.s3.us-east-2.amazonaws.com/hey_linux_amd64
 chmod +x ./hey_linux_amd64
 
 ./hey_linux_amd64 -c 1 -q 10 -n 10000000 -t 1 http://db
+./hey_linux_amd64 -c 5 -q 10 -n 100 -t 1 http://db
 
 
 
